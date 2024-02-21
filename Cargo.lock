@@ -107,7 +107,7 @@ dependencies = [
 [[package]]
 name = "ai-nft-io"
 version = "0.1.0"
-source = "git+https://github.com/gear-foundation/nft-marketplace.git?branch=tm-ai-nft#de1b1b4340cd10dad18e03f2f829c3e02b80b509"
+source = "git+https://github.com/gear-foundation/nft-marketplace.git?branch=tm-ai-nft#934d47bf845875cb4891ab5ea4f730dc4a8a492f"
 dependencies = [
  "gmeta",
  "gstd",
@@ -2264,15 +2264,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ipfs-api"
-version = "0.17.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d8cc57cf12ae4af611e53dd04053e1cfb815917c51c410aa30399bf377046ab"
-dependencies = [
- "ipfs-api-backend-hyper",
-]
-
-[[package]]
 name = "ipfs-api-backend-hyper"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2312,7 +2303,6 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
- "typed-builder",
  "walkdir",
 ]
 
@@ -5230,19 +5220,8 @@ checksum = "97fee6b57c6a41524a810daee9286c02d7752c4253064d0b05472833a438f675"
 dependencies = [
  "cfg-if",
  "digest 0.10.7",
- "rand 0.8.5",
+ "rand 0.7.3",
  "static_assertions",
-]
-
-[[package]]
-name = "typed-builder"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89851716b67b937e393b3daa8423e67ddfc4bbbf1654bcf05488e95e0828db0c"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -5367,12 +5346,13 @@ name = "varai"
 version = "0.1.0"
 dependencies = [
  "ai-nft-io",
+ "anyhow",
  "diffusers",
  "gclient",
  "gear-core",
  "gsdk",
  "hex-literal",
- "ipfs-api",
+ "ipfs-api-backend-hyper",
  "tch",
  "tokio",
  "torch-sys",

@@ -12,18 +12,18 @@ use gsdk::{
     },
     Api,
 };
-use ipfs_api::{IpfsApi, IpfsClient, TryFromUri};
-use std::{collections::HashSet, error::Error};
+use ipfs_api_backend_hyper::{IpfsApi, IpfsClient, TryFromUri};
+use std::collections::HashSet;
 use std::{fs, io::Cursor};
 use tch::{nn::Module, Device, Kind, Tensor};
 
 const PROGRAM_ID_RAW: [u8; 32] =
-    hex_literal::hex!("444194bf695bb9654695ea30eacd47d0803b1ca06317f11e5d257a5b6d4af6d6");
+    hex_literal::hex!("a6f47f4245d70a51ca208bf0dc824c079a3c34260ebecd348f06083022876d3d");
 const PROGRAM_ID: GearRuntimeProgramId = GearRuntimeProgramId(PROGRAM_ID_RAW);
 
 const GUIDANCE_SCALE: f64 = 7.5;
 
-async fn generate_pictute(prompt: String) -> Result<String, Box<dyn Error>> {
+async fn generate_pictute(prompt: String) -> anyhow::Result<String> {
     let clip_weights = "data/pytorch_model.safetensors".to_owned();
     let vae_weights = "data/vae.safetensors".to_owned();
     let unet_weights = "data/unet.safetensors".to_owned();
@@ -120,7 +120,7 @@ async fn generate_pictute(prompt: String) -> Result<String, Box<dyn Error>> {
 async fn process_event(
     visited_message_ids: &mut HashSet<[u8; 32]>,
     event: RuntimeEvent,
-) -> Result<(), Box<dyn Error>> {
+) -> anyhow::Result<()> {
     if let RuntimeEvent::Gear(GearEvent::UserMessageSent {
         message:
             UserMessage {
@@ -153,28 +153,28 @@ async fn process_event(
 
                 let api = GearApi::vara_testnet().await?;
 
-                //tokio::spawn(async move {
-                if let Ok(img_link) = generate_pictute(prompt).await {
-                    dbg!(&img_link);
-                    let payload = NftAction::SecondPhaseOfMint {
-                        minter,
-                        personal_id,
-                        img_link,
-                    }
-                    .encode();
+                tokio::spawn(async move {
+                    if let Ok(img_link) = generate_pictute(prompt).await {
+                        dbg!(&img_link);
+                        let payload = NftAction::SecondPhaseOfMint {
+                            minter,
+                            personal_id,
+                            img_link,
+                        }
+                        .encode();
 
-                    let program_id = GearCoreProgramId::from(PROGRAM_ID_RAW);
-                    let gas_info = api
-                        .calculate_handle_gas(None, program_id, payload.clone(), 0, true)
-                        .await;
-                    if let Ok(gas_info) = gas_info {
-                        let ret = api
-                            .send_message_bytes(program_id, payload, gas_info.min_limit, 0)
+                        let program_id = GearCoreProgramId::from(PROGRAM_ID_RAW);
+                        let gas_info = api
+                            .calculate_handle_gas(None, program_id, payload.clone(), 0, true)
                             .await;
-                        dbg!(ret);
+                        if let Ok(gas_info) = gas_info {
+                            let ret = api
+                                .send_message_bytes(program_id, payload, gas_info.min_limit, 0)
+                                .await;
+                            dbg!(ret);
+                        }
                     }
-                }
-                //});
+                });
             }
         }
     }
@@ -183,7 +183,7 @@ async fn process_event(
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> anyhow::Result<()> {
     //let api = Api::new(Some("ws://127.0.0.1:9944")).await?;
     let api = Api::new(Some("wss://testnet.vara.network:443")).await?;
     let mut events = api.events().await?;
