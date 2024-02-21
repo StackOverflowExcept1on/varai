@@ -1,0 +1,16 @@
+[package]
+name = "varai"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+diffusers = "0.3.1"
+tokio = { version = "1", features = ["full"] }
+hex-literal = "0.4.1"
+gsdk = "1.1.1"
+gclient = "1.1.1"
+gear-core = "1.1.1"
+ai-nft-io = { git = "https://github.com/gear-foundation/nft-marketplace.git", branch = "tm-ai-nft" }
+ipfs-api = { version = "0.17.0", features = ["with-hyper-rustls"], default-features = false }
+tch = "0.13"
+torch-sys = { version = "0.13", features = ["download-libtorch"] }
