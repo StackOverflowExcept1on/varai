@@ -1,4 +1,3 @@
-use ai_nft_io::{NftAction, NftError, NftEvent};
 use diffusers::pipelines::stable_diffusion;
 use diffusers::transformers::clip;
 use gclient::GearApi;
@@ -16,6 +15,79 @@ use ipfs_api_backend_hyper::{IpfsApi, IpfsClient, TryFromUri};
 use std::collections::HashSet;
 use std::{fs, io::Cursor};
 use tch::{nn::Module, Device, Kind, Tensor};
+
+pub type ActorId = [u8; 32];
+pub type NftId = u128;
+
+#[derive(Debug, Clone, Encode, Decode)]
+pub enum NftEvent {
+    Transferred {
+        owner: ActorId,
+        recipient: ActorId,
+        token_id: NftId,
+    },
+    TokenInfoReceived {
+        token_owner: ActorId,
+        approval: Option<ActorId>,
+        sellable: bool,
+        collection_owner: ActorId,
+        royalty: u16,
+    },
+    CanDelete(bool),
+    Initialized {
+        config: (),
+        permission_to_mint: Option<Vec<ActorId>>,
+    },
+    PhaseOneOfMintDone {
+        minter_to_personal_id: (ActorId, u32),
+        words: Vec<String>,
+    },
+}
+
+#[derive(Debug, Clone, Encode, Decode)]
+pub enum NftError {
+    MathOverflow,
+    ErrorGettingRandom,
+    TokenDoesNotExist,
+    AllTokensMinted,
+    OwnerDoesNotHaveNft,
+    AccessDenied,
+    NoApproval,
+    ThereIsApproval,
+    LimitIsZero,
+    ConfigCannotBeChanged,
+    WrongRoyalty,
+    NotTransferable,
+    UserRestrictionCannotBeChanged,
+    NoListOfRestriction,
+    ThereIsNoSuchUser,
+    ExhaustedLimit,
+    WrongValue,
+    NotOnPendingList,
+}
+
+#[derive(Debug, Clone, Encode, Decode)]
+pub enum NftAction {
+    Transfer {
+        to: ActorId,
+        token_id: NftId,
+    },
+    TransferFrom {
+        from: ActorId,
+        to: ActorId,
+        token_id: NftId,
+    },
+    GetTokenInfo {
+        token_id: NftId,
+    },
+    CanDelete,
+    FirstPhaseOfMint,
+    SecondPhaseOfMint {
+        minter: ActorId,
+        personal_id: u32,
+        img_link: String,
+    },
+}
 
 const PROGRAM_ID_RAW: [u8; 32] =
     hex_literal::hex!("a6f47f4245d70a51ca208bf0dc824c079a3c34260ebecd348f06083022876d3d");
