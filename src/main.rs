@@ -90,7 +90,7 @@ pub enum NftAction {
 }
 
 const PROGRAM_ID_RAW: [u8; 32] =
-    hex_literal::hex!("a6f47f4245d70a51ca208bf0dc824c079a3c34260ebecd348f06083022876d3d");
+    hex_literal::hex!("b9d63a40b4c39746170eee04ac1713ba7df4ad30ccacc0ea64921b4cfb5d6ebb");
 const PROGRAM_ID: GearRuntimeProgramId = GearRuntimeProgramId(PROGRAM_ID_RAW);
 
 const GUIDANCE_SCALE: f64 = 7.5;
